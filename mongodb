@@ -1,0 +1,61 @@
+#!/bin/bash
+# chkconfig: - 85 15
+. /etc/init.d/functions
+kqlj="/usr/local/mongodb/bin/mongod --dbpath=/usr/local/mongodb/data/ --logpath=/usr/local/mongodb/mongodb.log --fork --bind_ip=127.0.0.1,192.168.159.109 --auth"
+
+gblj="/usr/local/mongodb/bin/mongod --dbpath=/usr/local/mongodb/data/ --shutdown"
+
+qd_mongodb () {
+$kqlj &>/dev/null
+if [ $? -eq 0 ]
+then
+action "启动mongodb成功" /bin/true
+else
+action "启动mongodb失败" /bin/false
+fi
+}
+
+
+gb_mongodb () {
+$gblj &>/dev/null
+if [ $? -eq 0 ]
+then
+action "停止mongodb成功" /bin/true
+else
+action "停止mongodb失败" /bin/false
+fi
+}
+
+
+cz_mongodb () {
+id=`ps -ef |grep mongodb |grep -v grep|awk '{print $2}'` &>/dev/null
+kill -HUP $id
+if [ $? -eq 0 ]
+then
+action "停止mongodb成功" /bin/true
+else
+action "停止mongodb失败" /bin/false
+fi
+}
+
+case $1 in
+	start)
+	qd_mongodb
+	;;
+	stop)
+	gb_mongodb
+	;;
+	restart)
+	gb_mongodb
+	sleep 1
+	qd_mongodb
+	;;
+	reload)
+	cz_mongodb
+	;;
+	*)
+	echo "语法错误，请输入正确参数：start|stop|restart|reload。"
+	exit
+	;;
+esac
+
