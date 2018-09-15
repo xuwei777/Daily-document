@@ -1,0 +1,61 @@
+#!/bin/bash
+# chkconfig: - 85 15
+. /etc/init.d/functions
+pzwj=/usr/local/redis/bin/redis.conf
+qdwj=/usr/local/redis/bin/redis-server
+
+qd_redis () {
+$qdwj $pzwj &>/dev/null
+if [ $? -eq 0 ]
+then
+action "启动redis成功" /bin/true
+else
+action "启动redis失败" /bin/false
+fi
+}
+
+
+gb_redis () {
+id=`ps -ef |grep redis |grep -v grep|awk '{print $2}'` &>/dev/null
+kill -QUIT $id &>/dev/null
+if [ $? -eq 0 ]
+then
+action "停止redis成功" /bin/true
+else
+action "停止redis失败" /bin/false
+fi
+}
+
+
+cz_redis () {
+id=`ps -ef |grep redis |grep -v grep|awk '{print $2}'` &>/dev/null
+kill -HUP $id
+if [ $? -eq 0 ]
+then
+action "停止redis成功" /bin/true
+else
+action "停止redis失败" /bin/false
+fi
+}
+
+case $1 in
+	start)
+	qd_redis
+	;;
+	stop)
+	gb_redis
+	;;
+	restart)
+	gb_redis
+	sleep 1
+	qd_redis
+	;;
+	reload)
+	cz_redis
+	;;
+	*)
+	echo "语法错误，请输入正确参数：start|stop|restart|reload。"
+	exit
+	;;
+esac
+
